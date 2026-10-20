@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập 1 - Quản Lý Sản Phẩm</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Bài Tập 1</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Trang Chủ</a></li>
+                <li><a href="about.html">Lý Thuyết</a></li>
+                <li><a href="baitap01.html" class="active">Bài 1</a></li>
+                <li><a href="baitap02.html">Bài 2</a></li>
+                <li><a href="baitap03.html">Bài 3</a></li>
+                <li><a href="contact.html">Điểm Danh</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="card">
+            <h2>Danh Sách Sản Phẩm</h2>
+            <div class="form-group">
+                <input type="text" id="searchInput" placeholder="Nhập tên sản phẩm cần tìm...">
+            </div>
+            <div id="productContainer" class="product-grid"></div>
+            <p id="errorMsg" style="color: red; margin-top: 15px; display: none; text-align: center;">Không tìm thấy sản phẩm phù hợp!</p>
+        </div>
+        <div class="card">
+            <h2>Giải thích Logic Tư Duy:</h2>
+            <p><strong>Xử lý Input để chống XSS/Injection:</strong> Dùng phương thức textContent thay vì innerHTML khi render dữ liệu từ mảng để tránh việc trình duyệt dịch mã HTML/JS độc hại do người dùng nhập vào ô tìm kiếm. Đồng thời chuẩn hóa chuỗi về dạng chữ thường (toLowerCase) để so khớp không phân biệt hoa thường.</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2026 Phạm Nguyễn Nhật Anh - 241A010037</p>
+    </footer>
+    <script>
+        const products = [
+            { id: 1, name: "Laptop Gaming ASUS", price: "20.000.000 VNĐ" },
+            { id: 2, name: "Bàn phím cơ Hall Effect", price: "2.500.000 VNĐ" },
+            { id: 3, name: "Chuột không dây Esport", price: "1.800.000 VNĐ" },
+            { id: 4, name: "Màn hình 180Hz IPS", price: "4.200.000 VNĐ" },
+            { id: 5, name: "Tai nghe Gaming 7.1", price: "1.200.000 VNĐ" }
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const productContainer = document.getElementById('productContainer');
+        const errorMsg = document.getElementById('errorMsg');
+
+        function renderProducts(list) {
+            productContainer.innerHTML = '';
+            if (list.length === 0) {
+                errorMsg.style.display = 'block';
+                return;
+            }
+            errorMsg.style.display = 'none';
+            list.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'product-card';
+                const h3 = document.createElement('h3');
+                h3.textContent = item.name;
+                const p = document.createElement('p');
+                p.textContent = item.price;
+                div.appendChild(h3);
+                div.appendChild(p);
+                productContainer.appendChild(div);
+            });
+        }
+
+        renderProducts(products);
+
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase().trim();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(keyword));
+            renderProducts(filtered);
+        });
+    </script>
+</body>
+</html>
