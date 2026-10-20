@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Tập 2 - Đăng Ký Người Dùng</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Bài Tập 2</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Trang Chủ</a></li>
+                <li><a href="about.html">Lý Thuyết</a></li>
+                <li><a href="baitap01.html">Bài 1</a></li>
+                <li><a href="baitap02.html" class="active">Bài 2</a></li>
+                <li><a href="baitap03.html">Bài 3</a></li>
+                <li><a href="contact.html">Điểm Danh</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="card">
+            <h2>Form Đăng Ký</h2>
+            <form id="regForm">
+                <div class="form-group">
+                    <label>Họ và tên:</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu (>= 8 ký tự, có hoa, thường, số):</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="terms"> Đồng ý điều khoản sử dụng</label>
+                </div>
+                <button type="submit">Đăng Ký</button>
+                <p id="msg" style="margin-top: 15px; font-weight: bold;"></p>
+            </form>
+        </div>
+        <div class="card">
+            <h2>Logic Tư Duy Bảo Mật:</h2>
+            <p><strong>Xử lý Submit & LocalStorage:</strong> Sử dụng `preventDefault()` để kiểm soát sự kiện gửi form. Mật khẩu được kiểm tra bằng Regular Expression khắt khe trước khi lưu. Do LocalStorage không được mã hóa mặc định, không lưu trữ thông tin thẻ ngân hàng hoặc dữ liệu tối mật, chỉ lưu thông tin cấu hình hoặc thông tin cơ bản của người dùng.</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2026 Phạm Nguyễn Nhật Anh - 241A010037</p>
+    </footer>
+    <script>
+        const form = document.getElementById('regForm');
+        const msg = document.getElementById('msg');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const terms = document.getElementById('terms').checked;
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+            if (!emailRegex.test(email)) {
+                msg.style.color = 'red';
+                msg.textContent = 'Email không hợp lệ!';
+                return;
+            }
+            if (!passRegex.test(password)) {
+                msg.style.color = 'red';
+                msg.textContent = 'Mật khẩu phải từ 8 ký tự trở lên, gồm chữ hoa, chữ thường và số!';
+                return;
+            }
+            if (!terms) {
+                msg.style.color = 'red';
+                msg.textContent = 'Bạn phải đồng ý với điều khoản!';
+                return;
+            }
+
+            const userData = { name, email };
+            localStorage.setItem('registeredUser', JSON.stringify(userData));
+            msg.style.color = 'green';
+            msg.textContent = 'Đăng ký thành công và đã lưu vào LocalStorage!';
+            form.reset();
+        });
+    </script>
+</body>
+</html>
