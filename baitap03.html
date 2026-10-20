@@ -3,90 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Tập 2 - Đăng Ký Người Dùng</title>
+    <title>Bài Tập 3 - Đồng Hồ Đếm Ngược</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header>
-        <div class="logo">Bài Tập 2</div>
+        <div class="logo">Bài Tập 3</div>
         <nav>
             <ul>
                 <li><a href="index.html">Trang Chủ</a></li>
                 <li><a href="about.html">Lý Thuyết</a></li>
                 <li><a href="baitap01.html">Bài 1</a></li>
-                <li><a href="baitap02.html" class="active">Bài 2</a></li>
-                <li><a href="baitap03.html">Bài 3</a></li>
+                <li><a href="baitap02.html">Bài 2</a></li>
+                <li><a href="baitap03.html" class="active">Bài 3</a></li>
                 <li><a href="contact.html">Điểm Danh</a></li>
             </ul>
         </nav>
     </header>
     <main>
-        <div class="card">
-            <h2>Form Đăng Ký</h2>
-            <form id="regForm">
-                <div class="form-group">
-                    <label>Họ và tên:</label>
-                    <input type="text" id="name" required>
-                </div>
-                <div class="form-group">
-                    <label>Email:</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div class="form-group">
-                    <label>Mật khẩu (>= 8 ký tự, có hoa, thường, số):</label>
-                    <input type="password" id="password" required>
-                </div>
-                <div class="form-group">
-                    <label><input type="checkbox" id="terms"> Đồng ý điều khoản sử dụng</label>
-                </div>
-                <button type="submit">Đăng Ký</button>
-                <p id="msg" style="margin-top: 15px; font-weight: bold;"></p>
-            </form>
+        <div class="card" style="text-align: center;">
+            <h2>Đồng Hồ Đếm Ngược (10 Phút)</h2>
+            <div id="timer" class="timer-display">10:00</div>
+            <button id="startBtn">Bắt Đầu</button>
+            <button id="resetBtn" style="background:#6c757d; margin-left: 10px;">Đặt Lại</button>
         </div>
         <div class="card">
-            <h2>Logic Tư Duy Bảo Mật:</h2>
-            <p><strong>Xử lý Submit & LocalStorage:</strong> Sử dụng `preventDefault()` để kiểm soát sự kiện gửi form. Mật khẩu được kiểm tra bằng Regular Expression khắt khe trước khi lưu. Do LocalStorage không được mã hóa mặc định, không lưu trữ thông tin thẻ ngân hàng hoặc dữ liệu tối mật, chỉ lưu thông tin cấu hình hoặc thông tin cơ bản của người dùng.</p>
+            <h2>Giải thích Logic Kỹ Thuật:</h2>
+            <p><strong>Tránh Memory Leak:</strong> Luôn gọi `clearInterval()` trước khi khởi tạo một interval mới để tránh việc nhiều bộ đếm chạy chồng chéo lên nhau làm rò rỉ bộ nhớ. Khi deploy thực tế, đồng hồ đếm ngược nên được đồng bộ thời gian từ Server (timestamp) thay vì dựa hoàn toàn vào đồng hồ client để tránh việc người dùng chỉnh lại giờ hệ thống máy tính.</p>
         </div>
     </main>
     <footer>
         <p>&copy; 2026 Phạm Nguyễn Nhật Anh - 241A010037</p>
     </footer>
     <script>
-        const form = document.getElementById('regForm');
-        const msg = document.getElementById('msg');
+        let totalSeconds = 600;
+        let timerInterval = null;
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const terms = document.getElementById('terms').checked;
-
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-
-            if (!emailRegex.test(email)) {
-                msg.style.color = 'red';
-                msg.textContent = 'Email không hợp lệ!';
-                return;
+        function updateDisplay() {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            
+            if (totalSeconds <= 60) {
+                timerDisplay.classList.add('pulse');
+            } else {
+                timerDisplay.classList.remove('pulse');
             }
-            if (!passRegex.test(password)) {
-                msg.style.color = 'red';
-                msg.textContent = 'Mật khẩu phải từ 8 ký tự trở lên, gồm chữ hoa, chữ thường và số!';
-                return;
-            }
-            if (!terms) {
-                msg.style.color = 'red';
-                msg.textContent = 'Bạn phải đồng ý với điều khoản!';
-                return;
-            }
+        }
 
-            const userData = { name, email };
-            localStorage.setItem('registeredUser', JSON.stringify(userData));
-            msg.style.color = 'green';
-            msg.textContent = 'Đăng ký thành công và đã lưu vào LocalStorage!';
-            form.reset();
+        startBtn.addEventListener('click', () => {
+            if (timerInterval) return;
+            timerInterval = setInterval(() => {
+                if (totalSeconds > 0) {
+                    totalSeconds--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    alert('Hết giờ làm bài!');
+                }
+            }, 1000);
         });
+
+        resetBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            totalSeconds = 600;
+            updateDisplay();
+            timerDisplay.classList.remove('pulse');
+        });
+
+        updateDisplay();
     </script>
 </body>
 </html>
